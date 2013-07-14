@@ -104,7 +104,6 @@ angular.module('eventChain', []).factory('$chain', function ($exceptionHandler) 
                     }
 
                 } catch (e) {
-                    // TODO: Get service reference
                     $exceptionHandler(e);
                 }
             }

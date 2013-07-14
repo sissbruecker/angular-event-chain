@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html ng-app="angular-event-chain-test">
+<head>
+    <title>angular-event-chain</title>
+</head>
+<body>
+
+<script src="../lib/angular.js"></script>
+<script src="../src/angular-event-chain.js"></script>
+
+<script type="text/javascript">
+
+    angular.module('angular-event-chain-test', ['eventChain']).run(function($rootScope, $q, $chain) {
+
+        var scope = $rootScope.$new();
+
+        // One synchronous listener for event 1
+        scope.$on('event1', function() {
+            console.log('Event 1 received at: ' + new Date());
+        });
+
+        // One asynchronous listener for event 2
+        scope.$on('event2', function() {
+
+
+            var deferred = $q.defer();
+
+            setTimeout(function() {
+                scope.$apply(function() {
+                    console.log('Event 2 received at: ' + new Date());
+                    deferred.resolve();
+                });
+                deferred.resolve();
+            }, 3000);
+
+            return deferred.promise;
+        });
+
+        // Multiple asynchronous listeners for event 3
+        scope.$on('event3', function() {
+
+            var deferred = $q.defer();
+
+            setTimeout(function() {
+                scope.$apply(function() {
+                    console.log('Event 3-1 received at: ' + new Date());
+                    deferred.resolve();
+                });
+                deferred.resolve();
+            }, 3000);
+
+            return deferred.promise;
+        });
+
+        scope.$on('event3', function() {
+
+            var deferred = $q.defer();
+
+            setTimeout(function() {
+                scope.$apply(function() {
+                    console.log('Event 3-2 received at: ' + new Date());
+                    deferred.resolve();
+                });
+                deferred.resolve();
+            }, 3000);
+
+            return deferred.promise;
+        });
+
+        // Chain end
+        scope.$on('event4', function() {
+
+            console.log('Event 4 received at: ' + new Date());
+        });
+
+        $chain(scope)
+                .add('event1')
+                .add('event2')
+                .add('event3')
+                .add('event4')
+                .start();
+
+
+    });
+
+</script>
+
+</body>
+</html>
